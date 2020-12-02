@@ -1,5 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+/** Pickup is a template for any other pickup i want to do.
+ * It should tell if its active or not for beign pickable.
+ * 
+ */
 #pragma once
 
 #include "CoreMinimal.h"
@@ -46,16 +50,5 @@ public:
 	void WasCollected();
 	virtual void WasCollected_Implementation();
 
-	/** Sets the score value for this pickup */
-	UFUNCTION(BlueprintNativeEvent)
-	void SetScore(float Number);
-
-	/** Get the score value for this pickup */
-	UFUNCTION(BlueprintNativeEvent)
-	float GetScore() const;
-
 	//FORCEINLINE class UStaicMeshComponent* GetMesh() const {return PickupMesh; }
-private:
-	UPROPERTY(Category = Score, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float score;
 };

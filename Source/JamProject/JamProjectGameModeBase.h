@@ -79,7 +79,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game")
 	float GetPlayerScore();
 	
-	/** Modify difficulty based on an equation */
+	/** Modify difficulty based on an equation
+	 * The equation is 
+	 * D = Di - Di * T(c, t)
+	 * Where D is difficulty
+	 * Di is initial difficulty
+	 * T is a function of Combo and Time and is a value between 0 and 1
+	 * Time increases as the player is alive and playing
+	 * Combo increases when the player picks up a crate
+	 */
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	void DifficultyChange(float combo, float time)
 	
@@ -105,9 +113,13 @@ protected:
 	/** Difficulty should be a function of the time and player combo
 	 * Increase linearly with transcurred time
 	 * Increase cuadratically by player Combo
+	 * It will work on the timers assosiated to the spawning of projectiles
+	 * and maybe on the enemy spawning timer too
 	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game")
 	float Difficulty;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
+	float InitialDifficulty;
 
 	/** Number of player tanks that can be destroyed before ending the game for good */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")

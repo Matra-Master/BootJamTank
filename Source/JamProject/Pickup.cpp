@@ -47,19 +47,11 @@ void APickup::SetActive(bool newPickupState)
 	//Like efects, animations and whatnot
 }
 
+//IT seems this is not logging properly
+//Maybe its an old macro
 void APickup::WasCollected_Implementation()
 {
 	//Log a debugging message 
 	FString PickupDebugString = GetName();
 	UE_LOG(LogClass, Log, TEXT("You have collected %s"), *PickupDebugString);
-}
-
-void APickup::SetScore (float Number)
-{
-	score = number;
-}
-
-float APickup::GetScore() const
-{
-	return score;
 }

@@ -1,6 +1,7 @@
 
 
 #include "JamProjectGameModeBase.h"
+#include "CratePickup.h"
 #include "Tank.h"
 
 AJamProjectGameModeBase::AJamProjectGameModeBase()
@@ -16,6 +17,9 @@ AJamProjectGameModeBase::AJamProjectGameModeBase()
     remainingTanks= 3;
     //Initial Score Stetting
     playerScore = 0;
+
+    InitialDifficulty = 10;
+    Difficulty = InitialDifficulty;
 
     //When a player dies ask if it has tanks left
     //If so restart the game with their curent score
@@ -55,10 +59,7 @@ virtual void AJamProjectGameModeBase::onNotify(TSubclassOf<UObject> Entity, FStr
     case COLLECTED:
         //Someone COLLECTED something
         //Is the thing collecting stuff a tank?
-        //
-        //TODO CAST CORECTLY
-        //
-		TSubclassOf<ATank>* ThingCollecting= Cast <TSubclasPtr<ATank> >(Entity);
+        ATank* const ThingCollecting = Cast<ATank> (Entity);
 
         if(ThingCollecting)
         {
@@ -67,8 +68,9 @@ virtual void AJamProjectGameModeBase::onNotify(TSubclassOf<UObject> Entity, FStr
             if (ThingScore > 0)
             {
                 //Increase Combo Difficulty
+                combo = 
                 //Try increasing it in a linear fashion
-                difficulty = 
+                
                 //Try increasing it in a exponential way
                  
                 float oldScore = ThingCollecting.GetTankScore();
@@ -148,4 +150,13 @@ void AJamProjectGameModeBase::IncreasePlayerScore(float value)
 float AJamProjectGameModeBase::GetPlayerScore()
 {
     return playerScore;
+}
+
+void DifficultyChange( float combo, float time)
+{
+   //Resolve the value of T(c, t)
+    
+    
+    
+
 }
