@@ -26,6 +26,10 @@ class JAMPROJECT_API ATank : public APawn
 {
 	GENERATED_BODY()
 	
+	
+	/** This simple invisible point is my answer to the tank movement problems */
+	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* rootPoint;
 	/** Train Mesh
 	 * It should always follow the movement direction
 	 */
@@ -36,13 +40,13 @@ class JAMPROJECT_API ATank : public APawn
 	 */
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* turret;
-	//The Camera
+	//The Camera attached to an arm
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* cam;
-	//Spring arm for the camera
+	//Spring arm for the camera, attached to the turret
 	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* arm;
-	//Tank Hit Box for projectile calculations
+	//Tank Hit Box for damage calculations
 	UPROPERTY(Category = Areas, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* hitBox;
 	//Sphere for Pickup collection
@@ -97,6 +101,10 @@ protected:
 	//Called to unload cargo at a nearby safe zone
 	UFUNCTION(BlueprintCallable, Category = "Pickups")
 	void Unloadcargo();
+	
+	//Called to notify gamemode about an event
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void notify(FString event);
 
 public:	
 	// Called every frame
@@ -156,9 +164,10 @@ public:
 	FORCEINLINE class UBoxComponent* GetHitBox() const { return hitBox; }
 	/** Returns the Pickup Sphere subobject */
 	FORCEINLINE class USphereComponent* GetPickupSphere() const { return pickupSphere; }
+	
+
 	/** Returns the Tank Score number */
 	FORCEINLINE float GetTankScore() const { return TankScore; }
-	
 	/** Set the tank own score */
 	void SetTankScore(float score);
 };

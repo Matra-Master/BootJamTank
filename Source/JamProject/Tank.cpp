@@ -10,33 +10,37 @@ ATank::ATank()
 {
 	//AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	//Create the tank's Hit Box for projectile colisions
-	hitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBox"));
-	RootComponent = hitBox;
-	//Create the tank's moving train
-	train = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Train"));
-	train->SetupAttachment(RootComponent);
+	//Create the simple root point
+	rootPoint = CreateDefaultSubobject<UBoxComponent>(TEXT("RootPoint"));
+	RootComponent = rootPoint;
 	
-	//Create the super important arrow
+	/** 
+	 * TRAIN COMPONENT GROUP
+	*/
+	//HITBOX
+	hitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("HitBox"));
+	/* Setup Attachment is a function better used in a constructor.
+	To change attachments or reattach something outside of this function
+	it's best to use the AttachToComponent function.
+	See Switch for AttachToComponent usage.*/
+	hitBox ->SetupAttachment(RootComponent);
+	//TRAIN
+	train = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Train"));
+	train->SetupAttachment(hitBox);
+	//CARGO
+	cargo = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Cargo"));
+	cargo->SetupAttachment(hitBox);
+	
+	/**
+	 * TURRET COMPONENT GROUP
+	*/
+	//ARROW
 	arrow = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
 	arrow->SetupAttachment(RootComponent);
-
-	//PICKUPSPHERE CONFIGS
-	//Create the sphere that collects close pickups
-	pickupSphere = CreateDefaultSubobject<USphereComponent>(TEXT("PickupSphere"));
-	pickupSphere->SetupAttachment(RootComponent);
-	pickupSphere->SetSphereRadius(200.f);
-	
-	//TURRET CONFIGS
-	//Create the tank firing turret
+	//TURRET 
 	turret = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turret"));
 	turret->SetupAttachment(arrow);
-
-	
-	//With this my character should rotate with the camera
-	bUseControllerRotationYaw = true;
-
-	//Create a spring arm for the camera
+	//CAMERA ARM
 	arm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	arm->SetupAttachment(arrow);
 	arm->TargetArmLength = 500.f;
@@ -49,14 +53,19 @@ ATank::ATank()
 	arm->bEnableCameraRotationLag = true;
 	arm->CameraRotationLagSpeed = 4;
 	arm->CameraLagMaxTimeStep = 1;
-
-	//Create a Camera
+	//CAMERA
 	cam = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	//Attach camera to the end of the arm
 	cam->SetupAttachment(arm, USpringArmComponent::SocketName);
 
+	//PICKUPSPHERE CONFIGS
+	//Create the sphere that collects close pickups
+	pickupSphere = CreateDefaultSubobject<USphereComponent>(TEXT("PickupSphere"));
+	pickupSphere->SetupAttachment(RootComponent);
+	pickupSphere->SetSphereRadius(200.f);
 	//GAMEPLAY INITIALIZATIONS
 
+	//With this my character should rotate with the camera
+	bUseControllerRotationYaw = true;
 	//The initial state of the player camera perspective
 	firstPerson = false;
 	springArmMaxPitchCap = 25;
@@ -64,15 +73,16 @@ ATank::ATank()
 	springArmMaxYawCap = 25;
 	springArmMinYawCap = -45;
 
-	//Movement Length
+	//Movement 
 	movementLength = 20.f;
-	
 	rotationSpeed = 20.f;
 	
+	//Firing
 	muzzleOffset = FVector(90.f, 0.f, 0.f);
 	fireRate = 0.5f;
 	bCanFire = true;
 	
+	//Scoring
 	TankScore = 0.f;
 }
 
@@ -82,20 +92,14 @@ void ATank::BeginPlay()
 	Super::BeginPlay();
 	
 	//Instantiate the pickup hidden
-	if(pickedup)
+	if(cargo)
 	{
-		pickedup->SetActorHiddenInGame(true);
+		cargo->SetActorHiddenInGame(true);
 	}
 	
 }
 
-// Called every frame
-void ATank::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
+//DONE
 // Called to bind functionality to input
 void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -112,7 +116,7 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	InputComponent->BindAction("Collect", IE_Pressed, this, &ATank::CollectPickups);
 }
 
-
+//DONE
 void ATank::Zoom(float value)
 {
 	if(value)
@@ -125,6 +129,7 @@ void ATank::Zoom(float value)
 	}
 }
 
+//DONE
 void ATank::Switch()	
 {
 	
@@ -133,6 +138,9 @@ void ATank::Switch()
 		arm->TargetArmLength = 500.0f;
 		arm->SetRelativeRotation(FRotator(-45, 0, 0));
 		cam->SetRelativeRotation(FRotator(0, 0, 0));
+		/* AttachToComponent needs an extra argument respecto to the classic AttachTo.
+		It's a class of transform rules. I used a const called KeepRelativeTransform to maintain my camera as is. 
+		*/
 		cam->AttachToComponent(arm, FAttachmentTransformRules::KeepRelativeTransform, USpringArmComponent::SocketName);
 		firstPerson = false;
 	}
@@ -143,6 +151,7 @@ void ATank::Switch()
 	}
 }
 
+//DONE
 void ATank::HorizontalRot(float value)
 {
 	if (value)
@@ -150,7 +159,7 @@ void ATank::HorizontalRot(float value)
 		arrow->AddLocalRotation(FRotator(0, value, 0));
 	}
 }
-
+//DONE
 void ATank::VerticalRot(float value)
 {
 	if (value)
@@ -159,6 +168,8 @@ void ATank::VerticalRot(float value)
 		if(!firstPerson)
 		{
 			temp = arm->GetRelativeRotation().Pitch + value;
+			//Temp exist to be compared with the cap values
+			//That way my camera wont go further than some vertical values
 			if (temp < springArmMaxPitchCap && temp > springArmMinPitchCap)
 			{
 				arm->AddLocalRotation(FRotator(value, 0, 0));
@@ -174,28 +185,29 @@ void ATank::VerticalRot(float value)
 		}
 	}
 }
-
+//DONE
 void ATank::MoveForward(float value)
 {
 	if (value)
 	{
-		const FVector MoveDirection = RootComponent->GetForwardVector();
+		const FVector MoveDirection = hitBox->GetForwardVector();
 		const FVector Movement = MoveDirection * value * movementLength;  
 		
 		const FRotator Rotation = MoveDirection.Rotation();
 		RootComponent->MoveComponent(Movement, Rotation, true);
 	}
 }
-
+//DONE
 void ATank::MoveRight(float value)
 {
 	if(value)
 	{
 		float temp = value * rotationSpeed;
-		RootComponent->AddRelativeRotation(FRotator(0, temp, 0));
+		hitBox->AddRelativeRotation(FRotator(0, temp, 0));
 	}
 }
 
+//DONE
 //Fire Projectiles in the direction of the frontal arrow
 void ATank::Fire()
 {
@@ -236,11 +248,13 @@ void ATank::Fire()
 	}
 }
 
+//DONE
 void ATank::CollectPickups()
 {
 	//Get all overlapping actors and store them in an array
 	TArray<AActor*> CollectedActors;
 	pickupSphere->GetOverlappingActors(CollectedActors);
+
 	//For each actor collected
 	for (int32 iCollected = 0; iCollected < CollectedActors.Num(); ++iCollected)
 	{
@@ -263,19 +277,30 @@ void ATank::CollectPickups()
 		//Reveal a mesh of some box behind your tank
 		cargo->SetActorHiddenInGame(false);
 	}
-	//Notify in case you are at the safe zone to unload your cargo
-	
+	//NOTIFY in case you are at the safe zone to unload your cargo
+	FString someEvent = "COLLECTED";
+	notify(someEvent);
 	//Exit immediatly, the gamemode will call an unload function
 }
 
+//DONE
 void ATank::UnloadCargo()
 {
 	TankScore = 0;
 	cargo->SetActorHiddenInGame(true);
 }
 
+//DONE
+//This could be a bigger funcion with more than one observer class in play
+void ATank::notify(FString event)
+{
+	AJamProjectGameModeBase::onNotify(this, event);
+}
+
+//DONE
 // Set the tank score value
 void ATank::SetTankScore(float score)
 {
 	TankScore = score;
 }
+

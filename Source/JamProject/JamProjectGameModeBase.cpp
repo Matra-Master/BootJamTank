@@ -68,7 +68,7 @@ virtual void AJamProjectGameModeBase::onNotify(TSubclassOf<UObject> Entity, FStr
             if (ThingScore > 0)
             {
                 //Increase Combo Difficulty
-                combo = 
+                combo = ThingScore;
                 //Try increasing it in a linear fashion
                 
                 //Try increasing it in a exponential way
@@ -93,17 +93,28 @@ virtual void AJamProjectGameModeBase::onNotify(TSubclassOf<UObject> Entity, FStr
         if(ThingDown)
         {
             //Change the game state to Dead
-            SetCurrentState(EGameplayState::EDead); 
-            
+            SetCurrentState(EGameplayState::EDead);
+            //-1 life
+            DecreaseRemainingTanks(1); 
             //Snaaaaaake
             //If you have no tanks left
+            if(GetRemainingTanks() < 1)
+            {
                 //Change the game state to GAMEOVER
+                SetCurrentState(EGameplayState::EGameOver);
                 //if the player surpased the highscore
+                if(playerScore > highScore)
+                {
                     //Mark a new highscore
-            //else 
-                //Decrease remaining tanks
+                    highScore = playerScore;
+                }
+            }
+            else 
+            {
                 //Unload the tank
+                
                 //Go back to playing state
+            }
         }
 
     //case 
@@ -152,11 +163,15 @@ float AJamProjectGameModeBase::GetPlayerScore()
     return playerScore;
 }
 
+//D = Di - Di * T(c, t)
 void DifficultyChange( float combo, float time)
 {
-   //Resolve the value of T(c, t)
+    //Resolve the value of T(c, t)
+    float Tct = combo * combo + time * 2;
     
     
+    Difficulty = InitialDifficulty - (InitialDifficulty * Tct)
+   
     
 
 }
