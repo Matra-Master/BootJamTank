@@ -55,7 +55,9 @@ public:
 	/** Sets a new playing state */
 	void SetCurrentState(EGameplayState NewState);
 	
-	/** Returns the number of tanks remaining */
+	/** Returns the number of tanks remaining
+	 * for the HUD
+	*/
 	UFUNCTION(BlueprintPure, Category = "Game")
 	uint8 GetRemainingTanks() const;
 
@@ -67,7 +69,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	void DecreaseRemainingTanks(uint8 value);
 
-	/** Returns the High Schore value */	
+	/** Returns the High Schore value 
+	 * for the HUD
+	*/	
 	UFUNCTION(BlueprintPure, Category = "Game")
 	float GetHighScore() const;
 	
@@ -75,7 +79,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	void IncreasePlayerScore(float value);
 
-	/** Get the Player Score */
+	/** Get the Player Score 
+	 * for the HUD
+	*/
 	UFUNCTION(BlueprintPure, Category = "Game")
 	float GetPlayerScore();
 	
@@ -89,16 +95,22 @@ public:
 	 * Combo increases when the player picks up a crate
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Game")
-	void DifficultyChange(float combo, float time)
+	void DifficultyChange(float combo, float time);
+	
+	/** Returns the difficulty number as is
+	 * Maybe for the HUD
+	*/
+	UFUNCTION(BlueprintPure, Category = "Game")
+	float GetDifficulty();
 	
 protected:
 
 	/** A value in hundreds to show the player current score and to brag about */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", Meta = (BlueprintProtected = "true"))
 	float playerScore;
 
 	/** The classic high schore shown in all arcade games of the 90s */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", Meta = (BlueprintProtected = "true"))
 	float highScore;
 	
 	/** Combo is the score multiplier you get for stacking boxes on your tank before taking them to base
@@ -107,24 +119,41 @@ protected:
 	 * not in a x2 x3 x4 by box fashion but more like 1.05x 1.2x 1.5x by tank score
 	 * In the future there could be a debuff that makes it < than 1x
 	*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", Meta = (BlueprintProtected = "true"))
 	float Combo;
 
-	/** Difficulty should be a function of the time and player combo
-	 * Increase linearly with transcurred time
-	 * Increase cuadratically by player Combo
-	 * It will work on the timers assosiated to the spawning of projectiles
-	 * and maybe on the enemy spawning timer too
+	/*  It modifies the frequency of projectile spawning 
+	 *  Could be extended to a class if the actual game difficulty requires more than a simple shooting frequency value
+	 *  For example if i made a certain enemy spawn at a harder level or something
 	*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Difficulty", Meta = (BlueprintProtected = "true"))
 	float Difficulty;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
+
+	/** Initial value of difficulty, it wont affect the progression of the difficulty equation but rather it will make the initial 
+	 * minutes of the game easier */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Difficulty", Meta = (BlueprintProtected = "true"))
 	float InitialDifficulty;
 
-	/** Number of player tanks that can be destroyed before ending the game for good */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game")
+	/** The highest value of difficulty you can have, it should be initialized as close to cero as reasonable
+	 * so you can put a set value when combo is +10x 
+	 * */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Difficulty", Meta = (BlueprintProtected = "true"))
+	float MaxDifficulty;
+
+	/** Number of player tanks remaining
+	 * You Lose for good when you are out of tanks
+	*/
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", Meta = (BlueprintProtected = "true"))
 	uint8 remainingTanks;
 	
+	/** The Widget class to use for our HUD screen */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Game", Meta = (BlueprintProtected = "true"))
+	TSubclassOf<class UUserWidget> HUDWidgetClass;
+	
+	/** The current instance of the HUD */
+	UPROPERTY()
+	class UUserWidget* CurrentWidget;
+
 private:
 	/** Keeps track of the current game state */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game", meta = (AllowPrivateAccess = true))

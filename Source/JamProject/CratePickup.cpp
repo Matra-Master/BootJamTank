@@ -21,12 +21,13 @@ void ACratePickup::WasCollected_Implementation()
     Destroy();
 }
 
-void APickup::SetScore (float Number)
+void ACratePickup::SetScore (float Number)
 {
-	score = number;
+	score = Number;
 }
 
-float APickup::GetScore() const
+float ACratePickup::GetScore() const
 {
 	return score;
 }
+

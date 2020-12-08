@@ -28,43 +28,50 @@ class JAMPROJECT_API ATank : public APawn
 	
 	
 	/** This simple invisible point is my answer to the tank movement problems */
-	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Mesh", VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* rootPoint;
 	/** Train Mesh
 	 * It should always follow the movement direction
 	 */
-	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Mesh", VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* train;
 	/** Turret Mesh
 	 * It should always follow the camera
 	 */
-	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Mesh", VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* turret;
 	//The Camera attached to an arm
-	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Camera", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* cam;
 	//Spring arm for the camera, attached to the turret
-	UPROPERTY(Category = Camera, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Camera", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* arm;
 	//Tank Hit Box for damage calculations
-	UPROPERTY(Category = Areas, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Areas", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBoxComponent* hitBox;
 	//Sphere for Pickup collection
-	UPROPERTY(Category = Areas, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Areas", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* pickupSphere;
 	//Arrow that shows wich way the tank is facing	
-	UPROPERTY(Category = Areas, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Areas", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UArrowComponent* arrow;
-	
+	/** Is the tank at base? */
+	UPROPERTY(Category = "Areas", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	bool bIsAtBase;
+
 	/** Pickup mesh
 	 * It should be visible when you interact with a pickup near you
 	 */
-	UPROPERTY(Category = Pickups, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Mesh", VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UStaticMeshComponent* cargo;
 	
 	/** Tank Score to be delivered at the safe point */
-	UPROPERTY(Category = Areas, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = "Scoring", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float TankScore;
+
+	/** Tank Combo number */
+	UPROPERTY(Category = "Scoring", VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float Combo;
 
 public:
 	// Sets default values for this pawn's properties
@@ -94,13 +101,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Projectile)
 	TSubclassOf<class ATankProjectile> projectileClass;
 
-	//Called when we press a key to collect any pickup inside the Pickup Sphere
+	/** Called to collect any pickup object that's inside the range of the Tank
+	 * It updates the combo counter for every thing you pick up and also
+	 * adds to the tank score */
 	UFUNCTION(BlueprintCallable, Category = "Pickups")
 	void CollectPickups();
 	
-	//Called to unload cargo at a nearby safe zone
-	UFUNCTION(BlueprintCallable, Category = "Pickups")
-	void Unloadcargo();
+	/** Checks if we are at base */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	bool CheckIfAtBase();
 	
 	//Called to notify gamemode about an event
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
@@ -169,5 +178,18 @@ public:
 	/** Returns the Tank Score number */
 	FORCEINLINE float GetTankScore() const { return TankScore; }
 	/** Set the tank own score */
+	UFUNCTION(BlueprintCallable, Category = "Scoring")
 	void SetTankScore(float score);
+	/** Returns the tank combo number */
+	FORCEINLINE float GetCombo() const { return Combo; }
+	/** Combo + 1 */
+	UFUNCTION(BlueprintCallable, Category = "Scoring")
+	void ComboPlus();
+	/** Combo reset */
+	UFUNCTION(BlueprintCallable, Category = "Scoring")
+	void ComboReset();
+
+	//Called to unload cargo at a nearby safe zone
+	UFUNCTION(BlueprintCallable, Category = "Pickups")
+	void UnloadCargo();
 };

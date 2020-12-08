@@ -3,6 +3,7 @@
 
 #include "Tank.h"
 #include "Pickup.h"
+#include "CratePickup.h"
 
 
 // Sets default values
@@ -11,7 +12,7 @@ ATank::ATank()
 	//AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	//Create the simple root point
-	rootPoint = CreateDefaultSubobject<UBoxComponent>(TEXT("RootPoint"));
+	rootPoint = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RootPoint"));
 	RootComponent = rootPoint;
 	
 	/** 
@@ -84,6 +85,7 @@ ATank::ATank()
 	
 	//Scoring
 	TankScore = 0.f;
+	Combo = 0.f;
 }
 
 // Called when the game starts or when spawned
@@ -94,8 +96,9 @@ void ATank::BeginPlay()
 	//Instantiate the pickup hidden
 	if(cargo)
 	{
-		cargo->SetActorHiddenInGame(true);
+		cargo->SetHiddenInGame(true);
 	}
+	Combo = 0.f;
 	
 }
 
@@ -258,43 +261,51 @@ void ATank::CollectPickups()
 	//For each actor collected
 	for (int32 iCollected = 0; iCollected < CollectedActors.Num(); ++iCollected)
 	{
-		//Cast the actor to a pickup
-		APickup* const TestPickup = Cast<APickup>(CollectedActors[iCollected]);
+		//Cast the actor to a Crate pickup
+		ACratePickup* const TestPickup = Cast<ACratePickup>(CollectedActors[iCollected]);
+
 		//If the cast is succesful and the pickup is valid and active
 		if (TestPickup && !TestPickup->IsPendingKill() && TestPickup->IsActive())
 		{
-			//Call the pickup's Wascollected Function
+			//Load your score
+			TankScore += TestPickup->GetScore();
+			//Combo+
+			ComboPlus();
+			//Call the pickup's WasCollected Function
 			TestPickup->WasCollected();
 			//Deactivate the pickup
 			TestPickup->SetActive(false);
-			
-			TankScore += TestPickup->GetScore();
 		}
 	}
 	//If you collected pickups then show it
 	if(TankScore > 0)
 	{
 		//Reveal a mesh of some box behind your tank
-		cargo->SetActorHiddenInGame(false);
+		cargo->SetHiddenInGame(false);
+		//NOTIFY in case you are at the safe zone to unload your cargo
+		
+		FString someEvent = "COLLECTED";
+
+		//NOTIFY COLLECTED
+
+		//Exit immediatly, the gamemode will call an unload function
 	}
-	//NOTIFY in case you are at the safe zone to unload your cargo
-	FString someEvent = "COLLECTED";
-	notify(someEvent);
-	//Exit immediatly, the gamemode will call an unload function
 }
 
 //DONE
 void ATank::UnloadCargo()
 {
 	TankScore = 0;
-	cargo->SetActorHiddenInGame(true);
+	Combo = 0;
+	cargo->SetHiddenInGame(false);
 }
 
-//DONE
+//            UNDONE
 //This could be a bigger funcion with more than one observer class in play
 void ATank::notify(FString event)
 {
-	AJamProjectGameModeBase::onNotify(this, event);
+	//SHould be event based, unreal can do it
+		
 }
 
 //DONE
@@ -304,3 +315,12 @@ void ATank::SetTankScore(float score)
 	TankScore = score;
 }
 
+void ATank::ComboPlus()
+{
+    Combo += 1;
+}
+
+void ATank::ComboReset()
+{
+    Combo = 0;
+}
