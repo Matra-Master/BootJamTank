@@ -102,10 +102,7 @@ void AJamProjectGameModeBase::onNotify(TSubclassOf<UObject> Entity, FString Even
                     float time = World->GetTimeSeconds();
                     //Get combo from the Thing
                     float someCombo = ThingCollecting->GetCombo();
-                    //Increase Combo Difficulty
-                    
-                    
-                    Combo = ThingCollecting->GetCombo();
+                    //Increase Combo Difficulty, maybe?
                     //Call the difficulty function
                     DifficultyChange(Combo, time);
 

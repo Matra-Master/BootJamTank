@@ -7,9 +7,6 @@
 ACratePickup::ACratePickup()
 {
     PickupMesh->SetSimulatePhysics(true);
-    //The score inherent to an object should be assigned by the gama mode
-    //Initialize it with a default value
-    score = 100;
     
 }
 
@@ -19,15 +16,5 @@ void ACratePickup::WasCollected_Implementation()
     Super::WasCollected_Implementation();
     //Destroy the Crate
     Destroy();
-}
-
-void ACratePickup::SetScore (float Number)
-{
-	score = Number;
-}
-
-float ACratePickup::GetScore() const
-{
-	return score;
 }
 

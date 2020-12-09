@@ -107,10 +107,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Pickups")
 	void CollectPickups();
 	
-	/** Checks if we are at base */
-	UFUNCTION(BlueprintCallable, Category = "Gameplay")
-	bool CheckIfAtBase();
-	
 	//Called to notify gamemode about an event
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void notify(FString event);
@@ -192,4 +188,9 @@ public:
 	//Called to unload cargo at a nearby safe zone
 	UFUNCTION(BlueprintCallable, Category = "Pickups")
 	void UnloadCargo();
+
+	/** Checks if we are at base */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	bool CheckIfAtBase();
+	
 };

@@ -2,7 +2,7 @@
 
 /** Pickup is a template for any other pickup i want to do.
  * It should tell if its active or not for beign pickable.
- * 
+ * It will also have a inherent score value for gameplay purposes
  */
 #pragma once
 
@@ -27,6 +27,9 @@ protected:
 	//True when the pickup is pickable
 	bool bIsActive;
 	
+	/** scoring value for any Pickup */
+	UPROPERTY(Category = "Score", VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float score;
 
 public:	
 	// Called every frame
@@ -51,4 +54,15 @@ public:
 	virtual void WasCollected_Implementation();
 
 	//FORCEINLINE class UStaicMeshComponent* GetMesh() const {return PickupMesh; }
+
+	/** Sets the score value for this pickup */
+	UFUNCTION(BlueprintCallable, Category = "Score")
+	void SetScore(float Number);
+
+	/** Get the score value for this pickup */
+	UFUNCTION(BlueprintPure, Category = "Score")
+	float GetScore() const;
+
+private:
+
 };

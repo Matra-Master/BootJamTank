@@ -27,15 +27,4 @@ public:
 	//Use implementation because its a Blueprint native event
 	void WasCollected_Implementation() override;
 	
-	/** Sets the score value for this pickup */
-	UFUNCTION(BlueprintNativeEvent)
-	void SetScore(float Number);
-
-	/** Get the score value for this pickup */
-	UFUNCTION(BlueprintNativeEvent)
-	float GetScore() const;
-
-private:
-	UPROPERTY(Category = Score, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	float score;
 };
